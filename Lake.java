@@ -63,20 +63,30 @@ public class Lake {
 		if (clean.moved()){
 			System.out.println("The community is inspired by your cleaning of the lake");
 			rate = clean.amount()*.1;
-			System.out.printf("Your morale increased by %.2f\n", rate);
-			morale += rate;
-			System.out.printf("Your morale is now %.2f", morale);
-			System.out.println();
+			if (morale+rate > 100){
+				rate = 100-morale;
+			}
+			if (rate != 0){
+				System.out.printf("Your morale increased by %.2f\n", rate);
+				morale += rate;
+				System.out.printf("Your morale is now %.2f", morale);
+				System.out.println();
+			}
 			clean.moved(false);
 			clean.amount(0);
 		}
 		if (dirty.moved()){
 			System.out.println("The community is disgusted by the increasing dirt in the lake");
 			rate = dirty.amount()*.1;
-			System.out.printf("Your morale decreased by %.2f\n", rate);
-			morale -= rate;
-			System.out.printf("Your morale is now %.2f", morale);
-			System.out.println();
+			if (morale-rate < -100){
+				rate = morale;
+			}
+			if (rate != 0){
+				System.out.printf("Your morale decreased by %.2f\n", rate);
+				morale -= rate;
+				System.out.printf("Your morale is now %.2f", morale);
+				System.out.println();
+			}
 			dirty.moved(false);
 			dirty.amount(0);
 		}
@@ -84,14 +94,33 @@ public class Lake {
 		if (cycle == 3){
 			System.out.println("You didn't act for the past hours, and the community isn't pleased");
 			rate = noAct*.2;
-			System.out.printf("Your morale decreased by %.2f\n", rate);
-			morale -= rate;
-			System.out.printf("Your morale is now %.2f", morale);
-			System.out.println();
+			if (morale-rate < -100){
+				rate = morale;
+			}
+				if (morale != 0){
+				System.out.printf("Your morale decreased by %.2f\n", rate);
+				morale -= rate;
+				System.out.printf("Your morale is now %.2f", morale);
+				System.out.println();
+			}
 		}
 		
 		rate = ((morale-1)*.1)*(random.nextDouble()+1);
-		if (rate < 0){
+		if (rate+health < 0){
+			rate = health*-1;
+		}
+		else if (rate+health > 100){
+			if (health > 100){
+				rate = 0;
+			}
+			else{
+				rate = 100-health;
+			}
+		}
+		if (health > 100){
+			System.out.printf("Your health would've increased, but it can't anymore!");
+		}
+		else if (rate < 0){
 			System.out.printf("Your health will decrease by %.2f\n", rate*-1);
 		}
 		else if (rate > 0){
@@ -100,7 +129,12 @@ public class Lake {
 		else{
 			System.out.printf("Your health will stay steady at %.2f\n", health);
 		}
-		health += rate;
+		if (health + rate >= 100){
+			health = 100;
+		}
+		else{
+			health += rate;
+		}
 		if (health <= 5){
 			System.out.print("Your health already reached 5.00% at ");
 			System.out.printf("%.2f", health);
@@ -108,31 +142,38 @@ public class Lake {
 			System.out.println("The Lake is now irreversabily dead\nYOU LOSE");
 			return false;
 		}
-		else{
+		else if (rate < 0 || rate > 0){
 			System.out.printf("Your health is now %.2f", health);
 			System.out.println("%");
 			return true;
 		}
+		return true;
 	}
 	public double clean(double dirtCleaned){
+		if (dirt-dirtCleaned < 0){
+			dirtCleaned = dirt;
+		}
 		dirt -= dirtCleaned;
 		clean.moved(true);
-		clean.amount(dirtCleaned);
+		clean.amount((100-dirt));
 		return dirt;
 	}
 	public double dirty(double dirtPlaced){
+		if (dirt-dirtPlaced < 0){
+			dirtPlaced = 100-dirt;
+		}
 		dirt -= dirtPlaced;
 		dirty.moved(true);
-		dirty.amount(dirtPlaced);
+		dirty.amount(dirt/100);
 		return dirt;
 	}
 	public String printBars(){
-		String hs = "Your health is " + health + "%";
-		String ms = "Your morale is " + morale;
-		System.out.printf("Your health is %.2f", health);
-		System.out.println("%");
-		System.out.printf("Your morale is %.2f", morale);
-		System.out.println();
+		String hs = "|----------\n|Your health is " + health + "%\n|----------";
+		String ms = "|----------\n|Your morale is " + morale + "\n|----------";
+		System.out.printf("|----------\n|Your health is %.2f", health);
+		System.out.println("%\n|----------");
+		System.out.printf("|----------\n|Your morale is %.2f", morale);
+		System.out.println("\n|----------");
 		return hs + "\n" + ms;
 	}
 }

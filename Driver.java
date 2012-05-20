@@ -68,9 +68,6 @@ public class Driver{
 				do{
 					System.out.println("+--");
 					//Print out differing prompts to act depending on number of actions taken
-					if (numberActions <= 0){
-						System.out.println("You are now out of actions");
-					}
 					if (actions <= 0){
 						//The boolean action indicator at true indicates the very start of the hour
 						if (acted){
@@ -90,35 +87,61 @@ public class Driver{
 						System.out.println("What else will you do? (Enter\"H\" for help)");
 					}
 					//Take in input for player's actions
-					String action = scan.next();
+					String action = scan.next();//"C";
 					if (action.equalsIgnoreCase("I")){
 						System.out.printf("Sorry, but installation is yet to be implemented");
 						acted = true;
 						actions++;
+						numberActions--;
 					}
 					else if (action.equalsIgnoreCase("C")){
 						double oldDirt = lake.dirt();
+						if (oldDirt <= 0){
+							System.out.println("The lake is already clean!");
+						}
 						team.clean();
-						System.out.printf("You clean the lake and eradicate %.0f", (lake.clean().amount()/oldDirt)*100);
-						System.out.println("%");
+						if (oldDirt <= 0){
+							System.out.printf("You have already cleaned %.0f", lake.clean().amount());
+							System.out.println("% of the lake");
+						}
+						else{
+							System.out.printf("You clean the lake and have now cleaned %.0f", lake.clean().amount());
+							System.out.println("% of it");
+						}
 						acted = true;
 						actions++;
+						numberActions--;
 					}
 					else if (action.equalsIgnoreCase("H")){
 						System.out.println("Enter \"C\" to clean the lake\nEnter \"I\" to install machines to the lake (unimplemented)\nEnter \"H\" for help");
 					}
 				}
-				while(System.currentTimeMillis()-startingMillis < 60000);
+				while(System.currentTimeMillis()-startingMillis < 60000 && numberActions > 0);
 				System.out.println("+--");
 				//Loop is finished, so print statement that hour is finished
-				System.out.println("One hour has already passed");
+				if (numberActions <= 0){
+					System.out.println("You are now out of actions");
+				}
+				else{
+					System.out.println("One hour has already passed");
+				}
 				//Simulate Lake and check if game ends while passing through the "acted" argument
 				if (!lake.update(acted)){
 					//If game ends, game loop breaks
 					break;
 				}
+				else if (lake.health() >= 100 && lake.morale() >= 100){
+					System.out.println("-------------------------------------------");
+					System.out.println("| The lake is now back to full health AND |");
+					System.out.println("| The community is pleased with your work |");
+					System.out.println("-------------------------------------------");
+					System.out.println();
+					System.out.println("******************YOU WIN******************");
+					break;
+				}
 				//If game does not end, get next hour and loop again
 				date.nextHour();
+				System.out.println("----------");
 			}
 		}
 		//If "no" is entered, the console is exited

@@ -70,6 +70,7 @@ public class Date{
 			date += "---++"+monthWord+"++---\n";
 		}
 		date += "-----"+time+"-----\n";
+		System.out.print(date);
 		return date;
 	}
 
